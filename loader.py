@@ -12,8 +12,8 @@ class Loader:
     """
 
     @abstractmethod
-    def read(self):
-        raise FileNotFoundError("Файл не найден")
+    def read(self, filepath):
+        pass
 
 
 class LoaderExcel(Loader):
