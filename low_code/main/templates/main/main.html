@@ -1,0 +1,38 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+
+    <br><h2>Руководство пользователя</h2>
+    <p class="text_center">Тут будет краткое руководство пользователя</p>
+    <form method = "post", enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.file }}<br>
+    {% if not d %}
+    <button class="btn btn-success" type="submit" onclick="this.style.display='none';">Загрузить</button>
+    {% endif %}
+    </form>
+    {% if d %} 
+    <div class="container">    
+        <h2 class="text-center">Таблица</h2><br>      
+        <table class="table table-dark table-striped">
+          <thead>
+              <tr>
+              {% for j in c %}
+              <th>{{ j }}</th>
+              {% endfor %}
+              </tr>
+          </thead>
+          <tbody>
+          {% for row in d %}
+          <tr>
+              {% for col_name, value in row.items %}
+              <td>{{ value }}</td>
+              {% endfor %}
+          </tr> 
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+        
+{% endblock %}

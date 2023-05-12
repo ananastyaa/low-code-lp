@@ -1,0 +1,51 @@
+body {
+  font-family: "Roundhand", cursive;
+  background-color: #333333;
+  color: #fff;
+}
+
+.menu {
+  margin-left: 10px;
+  color: #ffffff;
+  padding-top: 10px;
+  font-size: 30px;
+}
+
+.navbar{
+    background:#0f0f0f;
+    border-bottom: solid;
+    border-color: #333333;
+   }
+   .nav-link {
+    color: #ffffff;
+    cursor: pointer;
+   }
+   .nav-link{
+    margin-right: 1em !important;
+   }
+   .nav-link:hover{
+    background: #ffffff;
+    color: #4538fc;;
+   }
+   .navbar-collapse{
+    justify-content: flex-end;
+   }
+   .navbar-toggler{
+     background:#fff !important;
+   }
+
+  h2  {
+    text-align: center;
+  }
+
+ p {
+    text-align: center;
+  }
+
+  form, button {
+    max-width: 400px;
+    margin: auto;
+    text-align: center;
+  }
+
+  
