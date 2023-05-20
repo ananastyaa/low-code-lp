@@ -1,7 +1,6 @@
 import pyomo.environ as pe
 import pyomo.opt as po
 import pandas as pd
-from data import Data
 from indexes import Indexes
 from parameter import Parameter
 
@@ -17,7 +16,8 @@ class Model:
     def create(self):
         self.indexes = self.create_indexes()
         self.params = self.create_parameters()
-        self.create_model()
+        result = self.create_model()
+        return result
 
     def create_indexes(self):
         return [Indexes(self.data, col).index() for col in self.name_idx]
@@ -55,6 +55,7 @@ class Model:
         df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=['w', 't']))
         df['x'] = [pe.value(model.x[key]) for key in df.index]
         df['c'] = [model.c[key] for key in df.index]
-        print(df)
-        print((df['c'] * df['x']).groupby('w').sum().to_frame())
-        print(df['x'].groupby('t').sum().to_frame().T)
+        #print(df)
+        #print((df['c'] * df['x']).groupby('w').sum().to_frame())
+        #print(df['x'].groupby('t').sum().to_frame().T)
+        return ((df['c'] * df['x']).groupby('w').sum().to_frame())

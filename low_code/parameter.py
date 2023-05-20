@@ -9,8 +9,8 @@ class Parameter:
         self.values = {}
 
     def create(self):
-        new_data = pd.DataFrame(data=self.data.data[self.columns_idx])
-        params = [elem[0] for i, elem in self.data.data[self.param].iterrows()]
+        new_data = pd.DataFrame(data=self.data[self.columns_idx])
+        params = [elem[0] for i, elem in self.data[self.param].iterrows()]
         for i, row in enumerate(new_data.itertuples(index=False)):
             temp = (row[0], row[1])
             self.values[temp] = int(params[i])

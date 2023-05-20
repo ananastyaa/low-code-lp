@@ -5,7 +5,7 @@ class Indexes:
         self.values = []
 
     def index(self):
-        for i in self.data.data[self.name]:
+        for i in self.data[self.name]:
             if i not in self.values:
                 self.values.append(i)
         return self.values
