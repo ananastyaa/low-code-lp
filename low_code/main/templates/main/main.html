@@ -6,9 +6,7 @@
     <p class="text_center">Тут будет краткое руководство пользователя</p>
     <form method = "post", enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.file }}<br>
-    {{ form.name_param }}<br>
-    {{ form.name_idx }}<br>
+    {{ form.path }}<br>
     {% if not d %}
     <button class="btn btn-success" type="submit" onclick="this.style.display='none';">Загрузить</button>
     {% endif %}
