@@ -34,18 +34,12 @@ body {
      background:#fff !important;
    }
 
-  h2  {
-    text-align: center;
-  }
-
- p {
-    text-align: center;
-  }
-
   form, button {
     max-width: 400px;
     margin: auto;
     text-align: center;
   }
 
-  
+  .text-center {
+    text-align: center !important;
+  }

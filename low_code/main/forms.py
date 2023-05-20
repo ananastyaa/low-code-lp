@@ -6,7 +6,7 @@ class FileForm(forms.ModelForm):
 
    class Meta:
       model = File
-      fields = ['path', 'name', 'extension']
+      fields = ['path']
 
       widgets = {
          "path": FileInput(attrs={
@@ -14,3 +14,18 @@ class FileForm(forms.ModelForm):
             'placeholder': 'Загрузите вашу таблицу'
          }),
       }
+
+"""
+class ParameterForm(forms.ModelForm):
+
+   class Meta:
+      model = Parameter
+      fields = ['col_idx', 'col_param']
+
+      widgets = {
+         "col": FileInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Загрузите вашу таблицу'
+         }),
+      }
+"""

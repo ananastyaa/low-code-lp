@@ -8,4 +8,4 @@ class Indexes:
         for i in self.data.data[self.name]:
             if i not in self.values:
                 self.values.append(i)
-        print(self.values)
+        return self.values

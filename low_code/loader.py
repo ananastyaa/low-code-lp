@@ -4,6 +4,7 @@ from abc import abstractmethod
 from data import Data
 from indexes import Indexes
 from parameter import Parameter
+from model import Model
 
 
 class Loader:
@@ -37,8 +38,8 @@ class Client:
 
     def __init__(self):
         self.handlers = []
-        self.columns_indexes = ["Quantity", "Description"]
-        self.param = ["UnitPrice"]
+        self.columns_indexes = ['workers', 'tasks']
+        self.param = ['time']
 
     def add_handler(self, handler):
         self.handlers.append(handler)
@@ -47,22 +48,21 @@ class Client:
         for handler in self.handlers:
             try:
                 data = Data(handler.read(filepath))
+                print(data.read())
+                data.preprocess()
             except FileNotFoundError:
                 pass
             except ValueError:
                 pass
-        self.index(data)
-        self.parameters(data)
+        self.create_model(data)
 
-    def index(self, data):
-        _ = [Indexes(data, col).index() for col in self.columns_indexes]
 
-    def parameters(self, data):
-        Parameter(self.columns_indexes, self.param, data).create()
+    def create_model(self, data):
+        Model(data, self.columns_indexes, self.param).create()
 
 
 if __name__ == "__main__":
     client = Client()
     client.add_handler(LoaderExcel())
     client.add_handler(LoaderCSV())
-    client.response("Online_Retail.xlsx")
+    client.response("task.csv")
