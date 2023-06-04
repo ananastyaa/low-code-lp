@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
-from .views import start
-urlpatterns = [
-    path('', views.start, name="files")
 
+urlpatterns = [
+    path('', views.start, name="files"),
+    path('create_model', views.ModelCreateView.as_view(), name='create_model')
 ]

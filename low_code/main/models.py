@@ -11,5 +11,6 @@ class File(models.Model):
 
 class Parameter(models.Model):
     file_id = models.ForeignKey('File', on_delete=models.CASCADE)
-    col_idx = models.JSONField()
-    col_param = models.TextField()
+    idx = models.TextField()
+    param = models.TextField()
+    limit = models.TextField()

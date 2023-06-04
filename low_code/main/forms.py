@@ -1,6 +1,7 @@
 from django import forms
 from .models import File, Parameter
 from django.forms import FileInput, TextInput
+from bootstrap_modal_forms.forms import BSModalModelForm
 
 class FileForm(forms.ModelForm):
 
@@ -15,17 +16,24 @@ class FileForm(forms.ModelForm):
          }),
       }
 
-"""
-class ParameterForm(forms.ModelForm):
+
+class ParameterForm(BSModalModelForm):
 
    class Meta:
       model = Parameter
-      fields = ['col_idx', 'col_param']
+      fields = ['idx', 'param', 'limit']
 
       widgets = {
-         "col": FileInput(attrs={
+         "idx": TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Загрузите вашу таблицу'
+            'placeholder': 'Введите индексы'
+         }),
+         "param": TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите параметры'
+         }),
+         "limit": TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите ограничения формулой вида (a < 8)'
          }),
       }
-"""

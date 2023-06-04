@@ -1,0 +1,44 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+
+<div class="modal fade", id="create-model" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content"></div>
+    </div>
+  </div>
+  <div class="button-wrapper">
+    <button id="create-model" class="btn btn-success" type="button" name="button">Создать модель</button>
+  </div>
+    <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', (e) => {
+    modalForm(document.getElementById('create-model'), {
+    formURL: "{% url 'create_model' %}"
+    })
+    });
+    </script> 
+
+    {% if d %} 
+    <div class="container">    
+        <br><h2 class="text-center">Таблица</h2><br>      
+        <table class="table table-dark table-striped">
+          <thead>
+              <tr>
+              {% for j in c %}
+              <th>{{ j }}</th>
+              {% endfor %}
+              </tr>
+          </thead>
+          <tbody>
+          {% for row in d %}
+          <tr>
+              {% for col_name, value in row.items %}
+              <td>{{ value }}</td>
+              {% endfor %}
+          </tr> 
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+{% endblock %}
