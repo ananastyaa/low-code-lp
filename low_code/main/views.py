@@ -1,11 +1,12 @@
 import json
 import pandas as pd
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from bootstrap_modal_forms.generic import BSModalCreateView
 
 from .forms import FileForm, ParameterForm
+from .models import Parameter, File
 from loader import Client
 
 
@@ -34,5 +35,13 @@ def start(request): #надо добавить ограничение на вы�
 class ModelCreateView(BSModalCreateView):
     template_name = 'main/create_model.html'
     form_class = ParameterForm
-    success_message = 'Success'
-    success_url = reverse_lazy('')
+    def form_valid(self, form):
+        form = form.cleaned_data
+        Parameter.objects.create(
+            file_id = File.objects.latest('id'),
+            idx = form['idx'],
+            param = form['param'],
+            limit = form ['limit']
+            )
+        return redirect('files')
+    #success_url = reverse_lazy('files')

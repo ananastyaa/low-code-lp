@@ -4,6 +4,10 @@ body {
   color: #fff;
 }
 
+h3 {
+ color: #333333; 
+}
+
 .menu {
   margin-left: 10px;
   color: #ffffff;
@@ -43,3 +47,13 @@ body {
   .text-center {
     text-align: center !important;
   }
+
+form {
+  width: 500px;
+}
+
+.button-wrapper{
+  display: flex;	
+  justify-content: center;	
+}
+

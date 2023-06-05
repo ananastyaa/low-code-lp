@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="modal fade", id="create-model" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade", id="create-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content"></div>
     </div>
@@ -11,10 +11,11 @@
     <button id="create-model" class="btn btn-success" type="button" name="button">Создать модель</button>
   </div>
     <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', (e) => {
-    modalForm(document.getElementById('create-model'), {
-    formURL: "{% url 'create_model' %}"
-    })
+    $(document).ready(function () {
+        $("#create-model").modalForm({
+            formURL: "{% url 'create_model' %}",
+            modalID: "#create-modal"
+        });
     });
     </script> 
 

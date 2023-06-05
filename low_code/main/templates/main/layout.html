@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
 </head>
 <body>
-  <script src="{% static 'assets/js/jquery-3.2.1.min.js' %}"></script>
-  <script src="{% static 'assets/js/popper.min.js' %}"></script>
-  <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
-  <!-- You can alternatively load the minified version -->
-  <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+  {% block scripts %}
+  <script src="{% static 'main/assets/js/jquery-3.2.1.min.js' %}"></script>
+  <script src="{% static 'main/assets/js/popper.min.js' %}"></script>
+  <script src="{% static 'main/assets/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'main/assets/js/jquery.bootstrap.modal.forms.js' %}"></script>
+  {% endblock scripts %}
     <nav class="navbar navbar-expand-lg">
         <p class="menu">Главная страница</p>
         <div class="collapse navbar-collapse " id="navbarSupportedContent">
