@@ -37,7 +37,7 @@ class ModelCreateView(BSModalCreateView):
     form_class = ParameterForm
     def form_valid(self, form):
         form = form.cleaned_data
-        Parameter.objects.create(
+        Parameter.objects.get_or_create(
             file_id = File.objects.latest('id'),
             idx = form['idx'],
             param = form['param'],
