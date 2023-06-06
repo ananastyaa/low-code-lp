@@ -16,8 +16,7 @@ class Model:
     def create(self):
         self.indexes = self.create_indexes()
         self.params = self.create_parameters()
-        result = self.create_model()
-        return result
+        self.create_model()
 
     def create_indexes(self):
         return [Indexes(self.data, col).index() for col in self.name_idx]
@@ -27,17 +26,21 @@ class Model:
 
     def create_model(self):
         model = pe.ConcreteModel()
+
         _ = [setattr(model, param, pe.Set(initialize=self.indexes[i]))
              for i, param in enumerate(self.name_idx)]
-        idxs = ['model.' + str(name) for name in self.name_idx]
-        model.max_hours = pe.Param(initialize=40)
-        model.c = pe.Param(model.workers, model.tasks, initialize=self.params, default=1000)
-        model.x = pe.Var(model.workers, model.tasks, domain=pe.Reals, bounds=(0, 1))
 
-        expr = sum(model.c[w, t] * model.x[w, t]
-                   for w in model.workers for t in model.tasks)
+        # model.c[w, t] - время
+        model.c = pe.Param(*[model.__getattribute__(name) for name in self.name_idx], initialize=self.params)
+        # model.c[w, t] - пара индексов
+        model.x = pe.Var(*[model.__getattribute__(name) for name in self.name_idx], domain=pe.Reals, bounds=(0, 1))
+
+        # допустим, введена формула вида СУММА(param*idx)
+        pairs = list(product(*self.indexes))
+        expr = sum(model.c[p] * model.x[p] for p in pairs)
         model.objective = pe.Objective(sense=pe.minimize, expr=expr)
-
+ 
+        # ограничения я не придумала пока че с ними сделать
         model.tasks_done = pe.ConstraintList()
         for t in model.tasks:
             lhs = sum(model.x[w, t] for w in model.workers)
