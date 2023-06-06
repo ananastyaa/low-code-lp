@@ -7,25 +7,24 @@ from bootstrap_modal_forms.generic import BSModalCreateView
 
 from .forms import FileForm, ParameterForm
 from .models import Parameter, File
-from loader import Client
+from loader import Data
+from model import Model
 
 
-def start(request): #надо добавить ограничение на вывод таблицы, например только первые 5 и последние 5 строк
+def load_file(request): #надо добавить ограничение на вывод таблицы, например только первые 5 и последние 5 строк
     data = []
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-        for filename, file in request.FILES.items():
+        for filename, _ in request.FILES.items():
             name = request.FILES[filename].name
         df = pd.read_csv("data/files/" + name)
         columns = ['index'] + list(df.columns.values)
         count = len(columns)
         json_records = df.reset_index().to_json(orient ='records')
         data = json.loads(json_records)
-        client = Client()
-        res = client.response(df)
-        context = {'d': data, 'c': columns, 'count': count, 'res': res}
+        context = {'d': data, 'c': columns, 'count': count}
         return render(request, 'main/table.html', context)
     else:
         form = FileForm
@@ -35,6 +34,7 @@ def start(request): #надо добавить ограничение на вы�
 class ModelCreateView(BSModalCreateView):
     template_name = 'main/create_model.html'
     form_class = ParameterForm
+
     def form_valid(self, form):
         form = form.cleaned_data
         Parameter.objects.get_or_create(
@@ -43,5 +43,10 @@ class ModelCreateView(BSModalCreateView):
             param = form['param'],
             limit = form ['limit']
             )
+        file = File.objects.latest('id')
+        parameter = Parameter.objects.latest('id')
+        df = pd.read_csv("data/" + str(file.path))
+        data = Data().preprocess(df, parameter.param)
+        Model(data, parameter.idx, parameter.param).create()
         return redirect('files')
-    #success_url = reverse_lazy('files')
+

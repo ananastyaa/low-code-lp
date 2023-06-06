@@ -1,6 +1,9 @@
 import pyomo.environ as pe
 import pyomo.opt as po
 import pandas as pd
+
+from itertools import product
+
 from indexes import Indexes
 from parameter import Parameter
 
