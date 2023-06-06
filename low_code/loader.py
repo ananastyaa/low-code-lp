@@ -1,21 +1,23 @@
-from model import Model
+class Data:
 
-class Client:
-    """ Клиент, перебирающий все возможные запросы """
+    def __init__(self) -> None:
+        pass
 
-    def __init__(self):
-        self.handlers = []
-        self.columns_indexes = ['workers', 'tasks']
-        self.param = ['time']
+    def preprocess(self, data, param, opt_criteria='min'):
+        new_values = []
+        if opt_criteria == 'min':
+            max = data[param].max() * 10 # умножаем, чтобы получить число больше макс и модель не рассматривала это как решение. Но максимальное находит неверно почему-то.
+            for value in data[param]:
+                try:
+                    tmp = int(value)
+                    new_value = value
+                except:
+                    new_value = max
+                finally:
+                    new_values.append(new_value)
+        data[param] = new_values
+        return data
 
-    def add_handler(self, handler):
-        self.handlers.append(handler)
 
-    def response(self, data):
-        data = data.replace('-', 1000)
-        self.res = self.create_model(data)
-        #print(self.res)
-        return self.res
+            
 
-    def create_model(self, data):
-        self.res = Model(data, self.columns_indexes, self.param).create()
