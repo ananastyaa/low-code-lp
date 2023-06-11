@@ -58,7 +58,8 @@ class Model:
         obj = []
 
         for word in f_split:
-            if word == self.name_param[0]:
+            print(word, self.name_param)
+            if word == self.name_param:
                 obj.append(model.c)
             if word == 'все':
                 obj.append(model.x)
@@ -71,7 +72,6 @@ class Model:
         model.objective = pe.Objective(sense=pe.minimize, expr=expr)
  
         # ОГРАНИЧЕНИЯ
-        
         сonstraint_list = сonstraint_list.split(';')
         model.cons = pe.ConstraintList()
         

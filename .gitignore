@@ -24,6 +24,7 @@ lib64/
 parts/
 sdist/
 var/
+.vscode
 
 low_code/data
 *.egg-info/

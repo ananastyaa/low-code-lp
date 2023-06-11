@@ -46,7 +46,10 @@ class ModelCreateView(BSModalCreateView):
         file = File.objects.latest('id')
         parameter = Parameter.objects.latest('id')
         df = pd.read_csv("data/" + str(file.path))
+
+        # добавить проверку на корректность ввода (есть ли столбцы в таблицы такие, как ввели)
         data = Data().preprocess(df, parameter.param)
-        Model(data, parameter.idx, parameter.param).create()
+        #string1 = "workers * tasks <= 40, tasks; tasks = 1, workers"
+        Model(data, parameter.idx.replace(" ", "").split(','), parameter.param.replace(" ", "")).create(parameter.limit)
         return redirect('files')
 

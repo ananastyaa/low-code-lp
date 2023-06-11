@@ -10,7 +10,7 @@ class Data:
             for value in data[param]:
                 try:
                     tmp = int(value)
-                    new_value = value
+                    new_value = tmp
                 except:
                     new_value = max
                 finally:
