@@ -1,3 +1,5 @@
+import operator
+
 import pyomo.environ as pe
 import pyomo.opt as po
 import pandas as pd
@@ -6,6 +8,16 @@ from itertools import product
 
 from indexes import Indexes
 from parameter import Parameter
+
+ops = {"+": operator.add,
+       "-": operator.sub,
+       '*': operator.mul,
+       '<': operator.le,
+       '<=': operator.eq,
+       '=': operator.ne,
+       '>': operator.gt,
+       '>=': operator.ge,
+       }
 
 
 class Model:
@@ -16,10 +28,10 @@ class Model:
         self.indexes = []
         self.params = []
 
-    def create(self):
+    def create(self, сonstraint_list):
         self.indexes = self.create_indexes()
         self.params = self.create_parameters()
-        self.create_model()
+        self.create_model(сonstraint_list)
 
     def create_indexes(self):
         return [Indexes(self.data, col).index() for col in self.name_idx]
@@ -27,41 +39,83 @@ class Model:
     def create_parameters(self):
         return Parameter(self.name_idx, self.name_param, self.data).create()
 
-    def create_model(self):
+    def create_model(self, сonstraint_list):
         model = pe.ConcreteModel()
-
+        
         _ = [setattr(model, param, pe.Set(initialize=self.indexes[i]))
              for i, param in enumerate(self.name_idx)]
 
         # model.c[w, t] - время
         model.c = pe.Param(*[model.__getattribute__(name) for name in self.name_idx], initialize=self.params)
-        # model.c[w, t] - пара индексов
+        # model.x[w, t] - пара индексов
         model.x = pe.Var(*[model.__getattribute__(name) for name in self.name_idx], domain=pe.Reals, bounds=(0, 1))
 
         # допустим, введена формула вида СУММА(param*idx)
+        # целевая функция
+        formula = 'time*все'
+        f_split = self.proccess_string(formula)
+        
+        obj = []
+
+        for word in f_split:
+            if word == self.name_param[0]:
+                obj.append(model.c)
+            if word == 'все':
+                obj.append(model.x)
+            if word.isdigit():
+                obj.append(word)
+
+        # не будет работать, если больше двух действий 
         pairs = list(product(*self.indexes))
-        expr = sum(model.c[p] * model.x[p] for p in pairs)
+        expr = sum(ops['*'](obj[0][p], obj[1][p]) for p in pairs)
         model.objective = pe.Objective(sense=pe.minimize, expr=expr)
  
-        # ограничения я не придумала пока че с ними сделать
-        model.tasks_done = pe.ConstraintList()
-        for t in model.tasks:
-            lhs = sum(model.x[w, t] for w in model.workers)
-            rhs = 1
-            model.tasks_done.add(lhs == rhs)
+        # ОГРАНИЧЕНИЯ
+        
+        сonstraint_list = сonstraint_list.split(';')
+        model.cons = pe.ConstraintList()
+        
+        for constraint in сonstraint_list:
+            string = constraint.split()
 
-        model.hour_limit = pe.ConstraintList()
-        for w in model.workers:
-            lhs = sum(model.c[w, t] * model.x[w, t] for t in model.tasks)
-            rhs = model.max_hours
-            model.hour_limit.add(lhs <= rhs)
+            new_idx = [i for i in self.name_idx]
+            tmp = constraint.replace(" ", "").split(',')
+            if tmp[1] in new_idx: 
+                new_idx.remove(tmp[1].replace(' ', ''))
+            
+            idxes = [Indexes(self.data, col).index() for col in new_idx]
+            new_pairs = list(product(*idxes))
 
-        solver = po.SolverFactory('gurobi')
-        results = solver.solve(model, tee=True)
+            for i, symbol in enumerate(string):
+                if (symbol == '=') or (symbol == '<=') or (symbol == '>=') or (symbol == '<') or (symbol == '>'):
+                        for el in new_pairs:
+                            rhs = int(string[i+1].replace(',', ''))
+                            if '*' in string: 
+                                lhs = sum(model.c[*el, t] * model.x[*el, t] for t in model.__getattribute__(tmp[1]))
+                                model.cons.add(lhs <= rhs) # работает
+                            else:
+                                lhs = sum(model.x[t, *el] for t in model.__getattribute__(tmp[1])) # следить за порядком
+                                model.cons.add(lhs == rhs) # работает
+                            #model.cons.add(ops[symbol](lhs, rhs)) # не работает
+        
+        # СУММА ВОРК <= 40
+        
+        results = po.SolverFactory('gurobi').solve(model)
+        #results.write()
+        #if results.solver.status == 'ok':
+        #    model.pprint()
         df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=['w', 't']))
         df['x'] = [pe.value(model.x[key]) for key in df.index]
         df['c'] = [model.c[key] for key in df.index]
-        #print(df)
-        #print((df['c'] * df['x']).groupby('w').sum().to_frame())
-        #print(df['x'].groupby('t').sum().to_frame().T)
-        return ((df['c'] * df['x']).groupby('w').sum().to_frame())
+        print(df)
+        print((df['c'] * df['x']).groupby('w').sum().to_frame())
+        print(df['x'].groupby('t').sum().to_frame().T)
+        
+
+    def proccess_string(self, formula):
+        formula.replace(' ', '')
+        pos_not_letter = [i for i, symbol in enumerate(formula) if not symbol.isalpha()]
+        strip_symbol = [idx+1 for idx in pos_not_letter if idx < len(formula)-1]
+        idx = sorted(pos_not_letter + strip_symbol)
+        tmp = [0] + idx + [len(formula)]
+        return [formula[tmp[i]:tmp[i+1]] for i in range(len(tmp) - 1)]
