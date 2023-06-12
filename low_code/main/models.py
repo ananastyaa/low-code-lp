@@ -15,4 +15,6 @@ class Parameter(models.Model):
     param = models.TextField()
     limit = models.TextField()
     func = models.TextField()
-    criteria = models.BooleanField()
+
+    CRITERIA_CHOICES = [(False, 'Минимизация'), (True, 'Максимизация')]
+    criteria = models.BooleanField(choices=CRITERIA_CHOICES)

@@ -28,6 +28,7 @@ class Model:
         self.name_param = name_parameters
         self.indexes = []
         self.params = []
+        self.model = []
 
     def create(self, сonstraint_list, func, criteria):
         self.indexes = self.create_indexes()
@@ -48,66 +49,69 @@ class Model:
 
         # model.c[w, t] - время
         model.c = pe.Param(*[model.__getattribute__(name) for name in self.name_idx], initialize=self.params)
+        
         # model.x[w, t] - пара индексов
         model.x = pe.Var(*[model.__getattribute__(name) for name in self.name_idx], domain=pe.Reals, bounds=(0, 1))
 
-        # целевая функция
-        
-        obj = []
-        func = self.proccess_string(func)
-        for word in func:
-            print(word, func)
-            if word == self.name_param:
-                print(1)
-                obj.append(model.c)
-            if word == '.':
-                print
-                obj.append(model.x)
-            if word.isdigit():
-                obj.append(word)
-
-        # не будет работать, если больше двух действий 
-        pairs = list(product(*self.indexes))
-        expr = sum(ops['*'](obj[0][p], obj[1][p]) for p in pairs)
-        if criteria == 0:
-            model.objective = pe.Objective(sense=pe.minimize, expr=expr)
-        else:
-            model.objective = pe.Objective(sense=pe.maximize, expr=expr)
- 
-        # ОГРАНИЧЕНИЯ
-        сonstraint_list = сonstraint_list.split(';')
-        model.cons = pe.ConstraintList()
-        
-        for constraint in сonstraint_list:
-            string = constraint.split()
-
-            new_idx = [i for i in self.name_idx]
-            tmp = constraint.replace(" ", "").split(',')
-            if tmp[1] in new_idx: 
-                new_idx.remove(tmp[1].replace(' ', ''))
+        try:
+            # целевая функция
             
-            idxes = [Indexes(self.data, col).index() for col in new_idx]
-            new_pairs = list(product(*idxes))
+            obj = []
+            func = self.proccess_string(func)
+            for word in func:
+                print(word, func)
+                if word == self.name_param:
+                    obj.append(model.c)
+                if word == '.':
+                    print
+                    obj.append(model.x)
+                if word.isdigit():
+                    obj.append(word)
 
-            for i, symbol in enumerate(string):
-                if (symbol == '=') or (symbol == '<=') or (symbol == '>=') or (symbol == '<') or (symbol == '>'):
-                        for el in new_pairs:
-                            rhs = int(string[i+1].replace(',', ''))
-                            if '*' in string: 
-                                lhs = sum(model.c[*el, t] * model.x[*el, t] for t in model.__getattribute__(tmp[1]))
-                                model.cons.add(lhs <= rhs) # работает
-                            else:
-                                lhs = sum(model.x[t, *el] for t in model.__getattribute__(tmp[1])) # следить за порядком
-                                model.cons.add(lhs == rhs) # работает
-                            #model.cons.add(ops[symbol](lhs, rhs)) # не работает
+            # не будет работать, если больше двух действий 
+            pairs = list(product(*self.indexes))
+            expr = sum(ops['*'](obj[0][p], obj[1][p]) for p in pairs)
+            if criteria:
+                model.objective = pe.Objective(sense=pe.maximize, expr=expr)
+            else:
+                model.objective = pe.Objective(sense=pe.minimize, expr=expr)
+    
+            # ОГРАНИЧЕНИЯ
+            сonstraint_list = сonstraint_list.split(';')
+            model.cons = pe.ConstraintList()
+            
+            for constraint in сonstraint_list:
+                string = constraint.split()
+
+                new_idx = [i for i in self.name_idx]
+                tmp = constraint.replace(" ", "").split(',')
+                if tmp[1] in new_idx: 
+                    new_idx.remove(tmp[1].replace(' ', ''))
+                
+                idxes = [Indexes(self.data, col).index() for col in new_idx]
+                new_pairs = list(product(*idxes))
         
-        results = po.SolverFactory('gurobi').solve(model)
-        df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=self.name_idx))
-        df['x'] = [pe.value(model.x[key]) for key in df.index]
-        df[self.name_param] = [model.c[key] for key in df.index]
-        self.model = df
+                for i, symbol in enumerate(string):
+                    if (symbol == '=') or (symbol == '<=') or (symbol == '>=') or (symbol == '<') or (symbol == '>'):
+                            for el in new_pairs:
+                                rhs = int(string[i+1].replace(',', ''))
+                                if '*' in string: 
+                                    lhs = sum(model.c[*el, t] * model.x[*el, t] for t in model.__getattribute__(tmp[1]))
+                                    model.cons.add(lhs <= rhs) # работает
+                                else:
+                                    lhs = sum(model.x[t, *el] for t in model.__getattribute__(tmp[1])) # следить за порядком
+                                    model.cons.add(lhs == rhs) # работает
+                                #model.cons.add(ops[symbol](lhs, rhs)) # не работает
+            
+            results = po.SolverFactory('gurobi').solve(model)
+            df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=self.name_idx))
+            df['x'] = [pe.value(model.x[key]) for key in df.index]
+            df[self.name_param] = [model.c[key] for key in df.index]
+            self.model = df
+        except Exception:
+            pass
+        
  
-
     def proccess_string(self, formula):
         formula.replace(' ', '')
         pos_not_letter = [i for i, symbol in enumerate(formula) if not symbol.isalpha()]

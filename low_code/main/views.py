@@ -57,16 +57,21 @@ class ModelCreateView(BSModalCreateView):
 
         data = Data().preprocess(df, parameter.param)
         #string = "workers * tasks <= 40, tasks; tasks = 1, workers"
+        
         model = Model(data, parameter.idx, parameter.param.replace(" ", ""))
         model.create(parameter.limit, parameter.func, parameter.criteria)
-
+        
         df = model.model
-        df = df[df['x'] == 1]
-        df = df.drop('x', axis=1)
-        df.reset_index(inplace=True)
-        df.to_csv('./data/download/' + str(file.path).replace("files/", ""))
-        columns = list(df.columns.values)
-        context = {'d': df, 'c': columns}
+        if not df.empty:
+            df = df[df['x'] == 1]
+            df = df.drop('x', axis=1)
+            df.reset_index(inplace=True)
+            df.to_csv('./data/download/' + str(file.path).replace("files/", ""))
+            columns = list(df.columns.values)
+            context = {'d': df, 'c': columns}
+            return render(self.request, 'main/results.html', context)
+        else:
+            pass
         return render(self.request, 'main/results.html', context)
 
 

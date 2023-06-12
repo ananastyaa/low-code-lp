@@ -42,18 +42,18 @@ h3 {
     max-width: 400px;
     margin: auto;
     text-align: center;
+    color: #333333;
   }
 
   .text-center {
     text-align: center !important;
   }
 
-form {
-  width: 500px;
-}
-
 .button-wrapper{
   display: flex;	
   justify-content: center;	
 }
 
+label {
+  color: #ffffff;
+}
