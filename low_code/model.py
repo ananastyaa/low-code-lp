@@ -58,7 +58,6 @@ class Model:
         obj = []
 
         for word in f_split:
-            print(word, self.name_param)
             if word == self.name_param:
                 obj.append(model.c)
             if word == 'все':
@@ -104,12 +103,13 @@ class Model:
         #results.write()
         #if results.solver.status == 'ok':
         #    model.pprint()
-        df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=['w', 't']))
+        df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=self.name_idx))
         df['x'] = [pe.value(model.x[key]) for key in df.index]
-        df['c'] = [model.c[key] for key in df.index]
-        print(df)
-        print((df['c'] * df['x']).groupby('w').sum().to_frame())
-        print(df['x'].groupby('t').sum().to_frame().T)
+        df[self.name_param] = [model.c[key] for key in df.index]
+        self.model = df
+        #print(df)
+        #print((df['c'] * df['x']).groupby('w').sum().to_frame())
+        #rint(df['x'].groupby('t').sum().to_frame().T)
         
 
     def proccess_string(self, formula):
