@@ -23,15 +23,16 @@ ops = {"+": operator.add,
 class Model:
     def __init__(self, data, name_indexes, name_parameters):
         self.data = data
-        self.name_idx = name_indexes
+        self.name_idx_str = name_indexes
+        self.name_idx = name_indexes.replace(" ", "").split(',')
         self.name_param = name_parameters
         self.indexes = []
         self.params = []
 
-    def create(self, сonstraint_list):
+    def create(self, сonstraint_list, func, criteria):
         self.indexes = self.create_indexes()
         self.params = self.create_parameters()
-        self.create_model(сonstraint_list)
+        self.create_model(сonstraint_list, func, criteria)
 
     def create_indexes(self):
         return [Indexes(self.data, col).index() for col in self.name_idx]
@@ -39,7 +40,7 @@ class Model:
     def create_parameters(self):
         return Parameter(self.name_idx, self.name_param, self.data).create()
 
-    def create_model(self, сonstraint_list):
+    def create_model(self, сonstraint_list, func, criteria):
         model = pe.ConcreteModel()
         
         _ = [setattr(model, param, pe.Set(initialize=self.indexes[i]))
@@ -50,17 +51,17 @@ class Model:
         # model.x[w, t] - пара индексов
         model.x = pe.Var(*[model.__getattribute__(name) for name in self.name_idx], domain=pe.Reals, bounds=(0, 1))
 
-        # допустим, введена формула вида СУММА(param*idx)
         # целевая функция
-        formula = 'time*все'
-        f_split = self.proccess_string(formula)
         
         obj = []
-
-        for word in f_split:
+        func = self.proccess_string(func)
+        for word in func:
+            print(word, func)
             if word == self.name_param:
+                print(1)
                 obj.append(model.c)
-            if word == 'все':
+            if word == '.':
+                print
                 obj.append(model.x)
             if word.isdigit():
                 obj.append(word)
@@ -68,7 +69,10 @@ class Model:
         # не будет работать, если больше двух действий 
         pairs = list(product(*self.indexes))
         expr = sum(ops['*'](obj[0][p], obj[1][p]) for p in pairs)
-        model.objective = pe.Objective(sense=pe.minimize, expr=expr)
+        if criteria == 0:
+            model.objective = pe.Objective(sense=pe.minimize, expr=expr)
+        else:
+            model.objective = pe.Objective(sense=pe.maximize, expr=expr)
  
         # ОГРАНИЧЕНИЯ
         сonstraint_list = сonstraint_list.split(';')
@@ -97,20 +101,12 @@ class Model:
                                 model.cons.add(lhs == rhs) # работает
                             #model.cons.add(ops[symbol](lhs, rhs)) # не работает
         
-        # СУММА ВОРК <= 40
-        
         results = po.SolverFactory('gurobi').solve(model)
-        #results.write()
-        #if results.solver.status == 'ok':
-        #    model.pprint()
         df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=self.name_idx))
         df['x'] = [pe.value(model.x[key]) for key in df.index]
         df[self.name_param] = [model.c[key] for key in df.index]
         self.model = df
-        #print(df)
-        #print((df['c'] * df['x']).groupby('w').sum().to_frame())
-        #rint(df['x'].groupby('t').sum().to_frame().T)
-        
+ 
 
     def proccess_string(self, formula):
         formula.replace(' ', '')

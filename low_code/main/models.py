@@ -14,3 +14,5 @@ class Parameter(models.Model):
     idx = models.TextField()
     param = models.TextField()
     limit = models.TextField()
+    func = models.TextField()
+    criteria = models.BooleanField()

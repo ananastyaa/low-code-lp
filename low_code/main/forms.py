@@ -21,7 +21,7 @@ class ParameterForm(BSModalModelForm):
 
    class Meta:
       model = Parameter
-      fields = ['idx', 'param', 'limit']
+      fields = ['idx', 'param', 'limit', 'func', 'criteria']
 
       widgets = {
          "idx": TextInput(attrs={
@@ -34,6 +34,14 @@ class ParameterForm(BSModalModelForm):
          }),
          "limit": TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Введите ограничения формулой вида (a < 8)'
+            'placeholder': 'Введите ограничения (a * b < 8, где a, b - параметры)'
+         }),
+         "func": TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите целевую функцию'
+         }),
+         "criteria": TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите критерий оптимизации 0 - мин., 1 - макс.'
          }),
       }
