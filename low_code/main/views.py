@@ -2,19 +2,21 @@ import json
 import os
 import mimetypes
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import pandas as pd
 
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+from django.template.loader import render_to_string
+from django.views import generic
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from bootstrap_modal_forms.generic import BSModalCreateView
+from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 
 from .forms import FileForm, LoginUserForm, ParameterForm, ProjectForm, RegisterUserForm
-from .models import Parameter, File
+from .models import Parameter, File, Project
 from loader import Data
 from model import Model
 
@@ -97,8 +99,14 @@ def download_file(request):
 class ProjectCreateView(BSModalCreateView):
     template_name = 'main/create_project.html'
     form_class = ProjectForm
-    success_message = 'Все ок'
-    success_url = reverse_lazy('files')
+
+    def form_valid(self, form):
+        form = form.cleaned_data
+        Project.objects.get_or_create(
+            user=self.request.user.username,
+            name=form['name'],
+            desc=form['param'],
+        )
 
 
 class RegisterUser(CreateView):
@@ -132,3 +140,27 @@ class LoginUser(LoginView):
 def logout_user(request):
     logout(request)
     return redirect('login')
+
+class Index(generic.ListView):
+    model = Project
+    context_object_name = 'projects'
+    template_name = 'main/read_projects.html'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if 'type' in self.request.GET:
+            qs = qs.filter(book_type=int(self.request.GET['type']))
+        return qs
+    
+
+
+def projects(request):
+    data = {}
+    if request.method == 'GET':
+        projects = Project.objects.filter(request.user.username)
+        data['table'] = render_to_string(
+            'projects_table.html',
+            {'projects': projects},
+            request=request
+        )
+        return JsonResponse(data)

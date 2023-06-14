@@ -1,0 +1,26 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<table id="projects-table" class="table table-dark table-striped">
+    <thead>
+    <tr>
+      <th class="text-center" scope="col">#</th>
+      <th class="text-center" scope="col">Название проекта</th>
+      <th class="text-center" scope="col">Описание</th>
+      <th class="text-center" scope="col">Обновление / Удаление </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for p in projects %}
+      <tr>
+        <th class="text-center" scope="row">{{ forloop.counter }}</th>
+        <td class="text-center">{{ p.name }}</td>
+        <td class="text-center">{{ p.desc }}</td>
+        <td class="text-center">
+        </td>
+      </tr>
+    {% endfor %}
+  
+    </tbody>
+  </table>
+{% endblock %}
