@@ -13,7 +13,7 @@ ops = {"+": operator.add,
        "-": operator.sub,
        '*': operator.mul,
        '<': operator.le,
-       '<=': operator.eq,
+       '<=': '__eq__',
        '=': operator.ne,
        '>': operator.gt,
        '>=': operator.ge,
@@ -55,11 +55,9 @@ class Model:
 
         try:
             # целевая функция
-            
             obj = []
             func = self.proccess_string(func)
             for word in func:
-                print(word, func)
                 if word == self.name_param:
                     obj.append(model.c)
                 if word == '.':
@@ -101,7 +99,7 @@ class Model:
                                 else:
                                     lhs = sum(model.x[t, *el] for t in model.__getattribute__(tmp[1])) # следить за порядком
                                     model.cons.add(lhs == rhs) # работает
-                                #model.cons.add(ops[symbol](lhs, rhs)) # не работает
+                                #model.cons.add(ops[symbol](lhs, rhs)) # не работает                         
             
             results = po.SolverFactory('gurobi').solve(model)
             df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=self.name_idx))

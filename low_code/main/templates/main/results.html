@@ -2,27 +2,47 @@
 
 {% block content %}
 <form action="/download">
-    <button class="btn btn-success" type="submit">Скачать</button>
+  <button class="btn btn-success" type="submit">Скачать</button>
 </form>
-    <div class="container">    
-        <br><h2 class="text-center">Таблица</h2><br>      
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                {% for j in c %}
-                <th>{{ j }}</th>
-                {% endfor %}
-                </tr>
-            </thead>
-          <tbody>
-            {% for col_name, value in d.iterrows %}
-          <tr>
-            {% for el in value %}
-              <td>{{ el }}</td>
-              {% endfor %}
-          </tr> 
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
+
+<div class="modal fade" , id="save-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"></div>
+  </div>
+</div>
+<div class="button-wrapper">
+  <button id="save-project" class="btn btn-success" type="button" name="button">Сохранить проект</button>
+</div>
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#save-project").modalForm({
+      formURL: "{% url 'create_project' %}",
+      modalID: "#save-modal"
+    });
+  });
+</script>
+
+
+<div class="container">
+  <br>
+  <h2 class="text-center">Таблица с оптимально-выбранными строками</h2><br>
+  <table class="table table-dark table-striped">
+    <thead>
+      <tr>
+        {% for j in c %}
+        <th>{{ j }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for col_name, value in d.iterrows %}
+      <tr>
+        {% for el in value %}
+        <td>{{ el }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

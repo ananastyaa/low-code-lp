@@ -18,3 +18,7 @@ class Parameter(models.Model):
 
     CRITERIA_CHOICES = [(False, 'Минимизация'), (True, 'Максимизация')]
     criteria = models.BooleanField(choices=CRITERIA_CHOICES)
+
+class Project(models.Model):
+    name = models.TextField()
+    desc = models.TextField()

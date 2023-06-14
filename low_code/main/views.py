@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from bootstrap_modal_forms.generic import BSModalCreateView
 
-from .forms import FileForm, ParameterForm
+from .forms import FileForm, ParameterForm, ProjectForm
 from .models import Parameter, File
 from loader import Data
 from model import Model
@@ -82,4 +82,11 @@ def download_file(request):
     path = open(filepath, 'rb')
     mime_type, _ = mimetypes.guess_type(filepath)
     response = HttpResponse(path, content_type=mime_type)
-    return response 
+    return response
+
+
+class ProjectCreateView(BSModalCreateView):
+    template_name = 'main/create_project.html'
+    form_class = ProjectForm
+    success_message = 'Success: Book was created.'
+    success_url = reverse_lazy('files')

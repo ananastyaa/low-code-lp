@@ -1,7 +1,7 @@
 import pandas as pd
 
 from django import forms
-from .models import File, Parameter
+from .models import File, Parameter, Project
 from django.forms import FileInput, TextInput, Select
 from bootstrap_modal_forms.forms import BSModalModelForm
 
@@ -65,3 +65,20 @@ class ParameterForm(BSModalModelForm):
       if d not in df.columns.values:
          raise forms.ValidationError(f'Похоже колонки {d} не существует в загруженной таблице')
       return data 
+   
+class ProjectForm(BSModalModelForm):
+
+   class Meta:
+      model = Project
+      fields = ['name', 'desc']
+
+      widgets = {
+         "name": TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите название проекта'
+         }),
+         "desc": TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Введите описание проекта'
+         }),
+      }
