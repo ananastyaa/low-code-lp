@@ -4,6 +4,11 @@ body {
   color: #fff;
 }
 
+h1 {
+  text-align: center;
+  margin: 30px;
+}
+
 h3 {
  color: #333333; 
 }
@@ -15,6 +20,12 @@ h3 {
   font-size: 30px;
 }
 
+.nav-item {
+  padding: auto;
+  margin: auto;
+}
+
+
 .navbar{
     background:#0f0f0f;
     border-bottom: solid;
@@ -25,7 +36,7 @@ h3 {
     cursor: pointer;
    }
    .nav-link{
-    margin-right: 1em !important;
+    margin-right: 3em !important;
    }
    .nav-link:hover{
     background: #ffffff;
@@ -43,6 +54,7 @@ h3 {
     margin: auto;
     text-align: center;
     color: #333333;
+    margin-top: 10px;
   }
 
   .text-center {
@@ -56,4 +68,27 @@ h3 {
 
 label {
   color: #ffffff;
+  margin: 10px;
+}
+
+.form-input {
+  width: 300px;
+  font-size: 16px;
+}
+
+.form-label {
+  display: inline-block;
+  min-width: 150px;
+  vertical-align: top;
+}
+
+.form-error ul {
+  list-style: none;
+  padding: 0;
+  color: #CC0000;
+}
+
+.form-button {
+  min-width: 200px;
+  font-size: 16px;
 }
