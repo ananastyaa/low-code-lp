@@ -1,0 +1,16 @@
+import pyomo.environ as pe
+import pyomo.opt as po
+
+class Model:
+
+    def create(self):
+        model = pe.ConcreteModel()
+        ENTER SETATTR
+
+        model.cons = pe.ConstraintList()
+        ENTER SET CONST
+       
+        results = po.SolverFactory('gurobi').solve(model)
+        results.write()
+        if results.solver.status == 'ok':
+            model.pprint()

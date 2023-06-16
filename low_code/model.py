@@ -61,7 +61,6 @@ class Model:
                 if word == self.name_param:
                     obj.append(model.c)
                 if word == '.':
-                    print
                     obj.append(model.x)
                 if word.isdigit():
                     obj.append(word)
@@ -117,3 +116,66 @@ class Model:
         idx = sorted(pos_not_letter + strip_symbol)
         tmp = [0] + idx + [len(formula)]
         return [formula[tmp[i]:tmp[i+1]] for i in range(len(tmp) - 1)]
+    
+
+    def save_in_file(self, cons):
+        with open('template.txt', 'r', encoding="UTF8") as f1, open('./data/code/simple.txt', 'w', encoding="UTF8") as f2:
+            lines = f1.readlines()
+
+            for line in lines:
+                line = line.strip()
+                if line == 'ENTER SETATTR':
+                    params_str = ''
+                    for i, name in enumerate(self.name_idx):
+                        params_str = params_str + 'model.' + name + ',' + ' '
+                        f2.write(f'model.{name} = pe.Set(initialize={self.indexes[i]})\n')
+                    
+                    f2.write(f'model.c = pe.Param({params_str} initialize={self.params})\n')
+                    f2.write(f'model.x = pe.Var({params_str} domain=pe.Reals, bounds=(0, 1))\n')
+                    f2.write(f'idxes = {list(product(*self.indexes))}\n')
+                    f2.write(f'expr = sum((model.c[0][i] * model.x[1][i]) for i in idxes)\n')
+                    f2.write(f'model.objective = pe.Objective(sense=pe.minimize, expr=expr)\n')
+ 
+                elif line == 'ENTER SET CONST':
+                    count = 0
+                    for c in cons.split(';'):
+                        string = c.split()
+                        new_idx = [i for i in self.name_idx]
+                        tmp = c.replace(" ", "").split(',')
+ 
+                        if tmp[1] in new_idx: 
+                            new_idx.remove(tmp[1].replace(' ', ''))
+                        idxes = [Indexes(self.data, col).index() for col in new_idx]
+                        new_pairs = list(product(*idxes))
+                        f2.write(f'new_idxes_conc_{count} = {new_pairs}\n')
+
+                        counter_idx = 0
+                        for i, symbol in enumerate(string):
+                            if (symbol == '=') or (symbol == '<=') or (symbol == '>=') or (symbol == '<') or (symbol == '>'):
+                                    string_elements = ''
+                                    for j in range(counter_idx):
+                                        if string_elements == '':
+                                            string_elements = 'el' + str(j)    
+                                        else:
+                                            string_elements = ',' + string_elements + 'el' + str(j)
+                                              
+                                    f2.write(f'for {string_elements} in new_idxes_conc_{count}:\n')
+                                    f2.write(f"rhs = {string[i+1].replace(',', '')}\n")
+
+                                    if ('*' in c.split()):
+                                        # тут бы знаки проверять
+                                        f2.write(f'lhs = sum((model.c[{string_elements}, e] * model.x[{string_elements}, e]) for e in model.{tmp[1]})\n')
+                                    else:
+                                        f2.write(f'lhs = sum(model.x[e, {string_elements}] for e in model.{tmp[1]})\n')
+                                    if symbol == '=':
+                                        f2.write(f'model.cons.add(lhs == rhs)\n')
+                                    else:
+                                        f2.write(f'model.cons.add(lhs {symbol} rhs)\n')
+                            else:
+                                if symbol in new_idx:
+                                    counter_idx += 1
+                        count += 1
+                else:
+                    f2.write(line + '\n')
+                
+            

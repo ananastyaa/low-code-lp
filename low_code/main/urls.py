@@ -4,7 +4,8 @@ from . import views
 urlpatterns = [
     path('', views.load_file, name="files"),
     path('create_model', views.ModelCreateView.as_view(), name='create_model'),
-    path('download', views.download_file, name='download'),
+    path('download_table', views.download_file, name='download_table'),
+    path('download_code', views.download_code, name='download_code'),
     path('create_project', views.ProjectCreateView.as_view(), name='create_project'),
     path('login', views.LoginUser.as_view(), name='login'),
     path('logout', views.logout_user, name='logout'),

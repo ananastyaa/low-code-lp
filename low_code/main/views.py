@@ -65,10 +65,9 @@ class ModelCreateView(BSModalCreateView):
         # добавить проверку на корректность ввода (есть ли столбцы в таблицы такие, как ввели)
 
         data = Data().preprocess(df, parameter.param)
-        # string = "workers * tasks <= 40, tasks; tasks = 1, workers"
-
         model = Model(data, parameter.idx, parameter.param.replace(" ", ""))
         model.create(parameter.limit, parameter.func, parameter.criteria)
+        model.save_in_file(parameter.limit)
 
         df = model.model
         if not df.empty:
@@ -93,6 +92,28 @@ def download_file(request):
     path = open(filepath, 'rb')
     mime_type, _ = mimetypes.guess_type(filepath)
     response = HttpResponse(path, content_type=mime_type)
+    return response
+
+def download_code(request):
+    """file = File.objects.latest('id')
+    df = pd.read_csv("data/" + str(file.path))
+    param = Parameter.objects.latest('id')
+    data = Data().preprocess(df, param.param)
+    model = Model(data, param.idx, param.param.replace(" ", ""))
+    model.save_in_file(param.limit)
+
+    file = File.objects.latest('id').path"""
+
+    """filepath = './data/code/simple.txt'
+    path = open(filepath, 'rb')
+    mime_type, _ = mimetypes.guess_type(filepath)
+    response = HttpResponse(path, content_type=mime_type)"""
+
+    read_file = open('./data/code/simple.txt', "r")
+    response = HttpResponse(read_file.read(), content_type="text/plain,charset=utf8")
+    read_file.close()
+
+    response['Content-Disposition'] = 'attachment; filename="{}.txt"'.format('file_name')
     return response
 
 
