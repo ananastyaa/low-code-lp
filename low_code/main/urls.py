@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout', views.logout_user, name='logout'),
     path('register', views.RegisterUser.as_view(), name='register'),
     path('projects', views.Index.as_view(), name='projects'),
+    path('delete/<int:pk>', views.ProjectDeleteView.as_view(), name='delete'),
 ]

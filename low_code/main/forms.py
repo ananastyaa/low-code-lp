@@ -1,8 +1,9 @@
+import magic
 import pandas as pd
 
 from django import forms
 from .models import File, Parameter, Project
-from django.forms import FileInput, TextInput, Select
+from django.forms import FileInput, TextInput, Select, ValidationError
 from bootstrap_modal_forms.forms import BSModalModelForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -20,6 +21,15 @@ class FileForm(forms.ModelForm):
                 'placeholder': 'Загрузите вашу таблицу'
             }),
         }
+        
+    def clean_file(self):
+        file = self.cleaned_data.get("file", False)
+        filetype = magic.from_buffer(file.read())
+        if not "CSV" in filetype:
+            raise ValidationError("Недопустимое расширение. Только csv и xlsx")
+        if not "XLSX" in filetype:
+            raise ValidationError("Недопустимое расширение. Только csv и xlsx")
+        return file
 
 
 class ParameterForm(BSModalModelForm):

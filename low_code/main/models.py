@@ -1,5 +1,9 @@
+from django.forms import ValidationError
+import magic
+
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import FileExtensionValidator
 
 # Create your models here.
 
@@ -13,7 +17,7 @@ class Project(models.Model):
 
 class File(models.Model):
     project_id = models.ForeignKey('Project', on_delete=models.CASCADE, null=True)
-    path = models.FileField(upload_to= 'files/',blank=True, null=True)
+    path = models.FileField(upload_to='files/', blank=True, null=True)
     name = models.TextField()
     extension = models.CharField(max_length=255)
 

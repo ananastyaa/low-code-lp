@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 from django.views import generic
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView
+from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView, BSModalDeleteView, BSModalUpdateView
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 
@@ -103,10 +103,11 @@ class ProjectCreateView(BSModalCreateView):
     def form_valid(self, form):
         form = form.cleaned_data
         Project.objects.get_or_create(
-            user=self.request.user.username,
+            user=self.request.user,      
             name=form['name'],
-            desc=form['param'],
+            desc=form['desc'],
         )
+        return redirect('files')
 
 
 class RegisterUser(CreateView):
@@ -141,6 +142,7 @@ def logout_user(request):
     logout(request)
     return redirect('login')
 
+
 class Index(generic.ListView):
     model = Project
     context_object_name = 'projects'
@@ -148,16 +150,19 @@ class Index(generic.ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if 'type' in self.request.GET:
-            qs = qs.filter(book_type=int(self.request.GET['type']))
+        qs = qs.filter(user=self.request.user)
         return qs
-    
 
+class ProjectDeleteView(BSModalDeleteView):
+    model = Project
+    template_name = 'main/delete.html'
+    success_message = 'Success'
+    success_url = reverse_lazy('files')
 
 def projects(request):
     data = {}
     if request.method == 'GET':
-        projects = Project.objects.filter(request.user.username)
+        projects = Project.objects.filter(user=request.user)
         data['table'] = render_to_string(
             'projects_table.html',
             {'projects': projects},

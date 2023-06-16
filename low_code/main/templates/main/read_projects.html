@@ -1,13 +1,26 @@
 {% extends 'main/layout.html' %}
 
 {% block content %}
+<div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog mt-5">
+      <div class="modal-content">
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" tabindex="-1" role="dialog" id="modal">
+    <div class="modal-dialog mt-5" role="document">
+      <div class="modal-content"></div>
+    </div>
+  </div>
+
 <table id="projects-table" class="table table-dark table-striped">
     <thead>
     <tr>
       <th class="text-center" scope="col">#</th>
       <th class="text-center" scope="col">Название проекта</th>
       <th class="text-center" scope="col">Описание</th>
-      <th class="text-center" scope="col">Обновление / Удаление </th>
+      <th class="text-center" scope="col">Удаление </th>
     </tr>
     </thead>
     <tbody>
@@ -17,10 +30,29 @@
         <td class="text-center">{{ p.name }}</td>
         <td class="text-center">{{ p.desc }}</td>
         <td class="text-center">
+          <button type="button" class="delete-project btn btn-sm btn-danger" data-form-url="{% url 'delete' p.pk %}">
+            <span class="fa fa-trash"></span>
+          </button>
         </td>
       </tr>
     {% endfor %}
   
     </tbody>
   </table>
+
+  <script type="text/javascript">
+    $(function () {
+        // Delete book buttons - formURL is retrieved from the data of the element
+        function deleteProjectModalForm() {
+          $(".delete-project").each(function () {
+              $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
+          });
+        }
+        deleteProjectModalForm();
+
+        function reinstantiateModalForms() {
+          deleteProjectModalForm();
+        }
+    });
+</script>
 {% endblock %}
